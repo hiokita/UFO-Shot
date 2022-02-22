@@ -28,9 +28,6 @@ rectangleの略で、長方形、矩形を表現します。
     top（長方形の左端 topと同じ）
     bottom（長方形の下端）
 '''
-
-from curses import KEY_CLOSE, KEY_LEFT, KEY_RIGHT
-from select import KQ_FILTER_TIMER
 import sys
 import time
 import pygame
