@@ -30,7 +30,6 @@ rectangleの略で、長方形、矩形を表現します。
 '''
 
 from pathlib import Path
-from posixpath import abspath, dirname
 import sys
 import time
 import pygame
