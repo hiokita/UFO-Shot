@@ -28,133 +28,137 @@ rectangleの略で、長方形、矩形を表現します。
     top（長方形の左端 topと同じ）
     bottom（長方形の下端）
 '''
+
+from pathlib import Path
+from posixpath import abspath, dirname
 import sys
 import time
 import pygame
 from pygame.locals import *
 
-# pygame初期化
+# pygameしょきか
 pygame.init()
 
 #
-#-- 画面や登場キャラクタのデータを用意します
+#-- がめんや とうじょうキャラクタの データを よういします
 #
 
-# 画面を構成する
+# がめんの こうせい
 rectScreen = Rect(0, 0, 640, 400)
-screen = pygame.display.set_mode(rectScreen.size) # ゲーム画面
+screen = pygame.display.set_mode(rectScreen.size) # ゲームがめん
 
-# 背景の作成と描画
+# はいけいの さくせいと びょうが
 backgroud = pygame.Surface(rectScreen.size)
-backgroud.fill((0, 150, 0))  # 画面の背景色
+backgroud.fill((0, 150, 0))  # はいけいしょく
 
-# 画像の読み込み
-imageFighter = pygame.image.load("fighter.png").convert_alpha() # 自機
-imageMissile = pygame.image.load("missile.png").convert_alpha() # ミサイル
-imageEnemy = pygame.image.load("UFO.png").convert_alpha() # 敵
+# がぞうの よみこみ
+baseDirPath = Path(__file__).parent.resolve()
+imageFighter =  pygame.image.load(baseDirPath/"fighter.png").convert_alpha() # じき
+imageMissile = pygame.image.load(baseDirPath/"missile.png").convert_alpha() # ミサイル
+imageEnemy = pygame.image.load(baseDirPath/"UFO.png").convert_alpha() # てき
 
-# 表示する矩形の用意
-rectFighter = Rect(0, 250, imageFighter.get_width(), imageFighter.get_height()) # 自機
+# ひょうじする くけいの ようい
+rectFighter = Rect(0, 250, imageFighter.get_width(), imageFighter.get_height()) # じき
 rectMissile = Rect(0, 0, imageMissile.get_width(), imageMissile.get_height()) # ミサイル
-rectEnemy = Rect(0, 50, imageEnemy.get_width(), imageEnemy.get_height()) # 敵
+rectEnemy = Rect(0, 50, imageEnemy.get_width(), imageEnemy.get_height()) # てき
 
-# 移動する速さ
-speedFighter = 15 # 自機
+# いどうする はやさ
+speedFighter = 15 # じき
 speedMissile = 10 # ミサイル
-speedEnemy = 5 # 敵
+speedEnemy = 5 # てき
 
-# 敵をやっつけた時のメッセージ
+# てきを やっつけたときの メッセージ
 font = pygame.font.Font(None, 55)   
-textBang = font.render("Hit!", True, (255,255,255))   # 描画する文字列の設定
+textBang = font.render("Hit!", True, (255,255,255)) 
 
-# メイン関数の定義
+# メインかんすうの ていぎ
 def main():
-    flagEnemyBang = False # 敵をやっつけた（True）か、やっつけてない（False）かを表す
-    flagEnemyMoveRight = True # 敵が右に移動中（True）か、左に移動中（False）かを表す
-    flagMissileFire = False # ミサイルが発射した（True）か、発射していない（False）かを表す
+    flagEnemyBang = False # てきをやっつけた（True）か やっつけてない（False）か
+    flagEnemyMoveRight = True # てきが右にいどう中（True）か 左にいどう中（False）か
+    flagMissileFire = False # ミサイルがはっしゃした（True）か はっしゃしていない（False）か
 
     while True:
         #
-        #-- 最初に背景を描きます（ここでは画面全体を塗りつぶします）
+        #-- さいしょに はいけいを かきます（ここでは がめんぜんたい をぬりつぶします）
         #
         screen.blit(backgroud, (0, 0))
 
         #
-        #-- 自機の操作と描写
+        #-- じきの そうさと びょうしゃ
         #
-        pressed = pygame.key.get_pressed() # 今押されているキーを取得します
+        pressed = pygame.key.get_pressed() # いま おされているキーを しゅとくします
         
-        if pressed[K_RIGHT]: # →　キーの場合
-            rectFighter.x = rectFighter.x + speedFighter # 右に移動します
-            if rectFighter.right > rectScreen.width: # 自機の右位置(right)が画面の右端（画面幅）より大きい場合
-                rectFighter.right = rectScreen.width # 画面からはみ出さないいように、画面幅に修正します
+        if pressed[K_RIGHT]: # →　キーのばあい
+            rectFighter.x = rectFighter.x + speedFighter # 右に いどうします
+            if rectFighter.right > rectScreen.width: # じきの右いち(right)が がめんの右はし（がめんはば）より 大きいばあい
+                rectFighter.right = rectScreen.width # がめんから はみ出さないように がめんはばに しゅうせいします
         
-        if pressed[K_LEFT]: # ←　キーの場合
-            rectFighter.x = rectFighter.x - speedFighter # 左に移動します
-            if rectFighter.x < 0: # 自機の左位置が画面の左端（0）より小さい場合
-                rectFighter.x = 0 # 画面からはみ出さないいように、0に修正します
+        if pressed[K_LEFT]: # ←　キーのばあい
+            rectFighter.x = rectFighter.x - speedFighter # 左に いどうします
+            if rectFighter.x < 0: # じきの左いちが がめんの左はし（0）より 小さいばあい
+                rectFighter.x = 0 # がめんから はみ出さないいように 0にしゅうせいします
 
-        if pressed[K_SPACE]: # スペースキーの場合
-            if flagMissileFire == False: # ミサイルを発射してなければ
-                # ミサイルの場所を自機と同じにして、発射！
+        if pressed[K_SPACE]: # スペースキーの ばあい
+            if flagMissileFire == False: # ミサイルを はっしゃしてなければ
+                # ミサイルのばしょを じきと同じにして、はっしゃ！
                 rectMissile.x = rectFighter.x 
                 rectMissile.y = rectFighter.y
                 flagMissileFire = True
 
-        screen.blit(imageFighter, rectFighter) # 自機をゲーム画面に書きます
+        screen.blit(imageFighter, rectFighter) # じきを ゲームがめんに かきます
 
         #
-        #-- ミサイルの移動と描写
+        #-- ミサイルのいどうと びょうしゃ
         #
-        if flagMissileFire == True: # 発射状態の場合
-            if rectMissile.y <= 0: # 画面上端(Y=0)に届いた場合（敵に当たらなかった、残念）
-                flagMissileFire = False # 無効（未発射）にします
-            else: # そうでない場合
-                rectMissile.y = rectMissile.y - speedMissile # 上に移動します
-                screen.blit(imageMissile, rectMissile) # ミサイルをゲーム画面に書きます
+        if flagMissileFire == True: # はっしゃじょうたいの ばあい
+            if rectMissile.y <= 0: # がめんうえはじ(Y=0)に とどいたばあい（てき にあたらなかった、ざんねん！）
+                flagMissileFire = False # はっしゃしていない じょうたいに します
+            else: # そうでないばあい
+                rectMissile.y = rectMissile.y - speedMissile # うえに いどうします
+                screen.blit(imageMissile, rectMissile) # ミサイルを ゲームがめんに かきます
  
         #
-        #-- 敵の移動と描写
+        #-- てきのいどうと びょうしゃ
         #
-        if flagEnemyBang == False: # 敵にミサイルが当たっていない場合
-            if flagEnemyMoveRight == True: # 右に移動中の場合
-                rectEnemy.x = rectEnemy.x + speedEnemy # 右に移動
-                if rectEnemy.right > rectScreen.width: # 画面右端に届いた場合
-                    flagEnemyMoveRight = False # 左移動に切り替える
-            else : # 左に移動中の場合
-                rectEnemy.x = rectEnemy.x - speedEnemy # 左に移動
-                if rectEnemy.right < 0: # 画面左端に届いた場合
-                    flagEnemyMoveRight = True # 右移動に切り替える
+        if flagEnemyBang == False: # てきに ミサイルが あたっていない ばあい
+            if flagEnemyMoveRight == True: # 右にいどう中の ばあい
+                rectEnemy.x = rectEnemy.x + speedEnemy # 右にいどう
+                if rectEnemy.right > rectScreen.width: # がめんみぎはしに とどいたいたばあい
+                    flagEnemyMoveRight = False # 左いどうに きりかえる
+            else : # 左にいどう中の ばあい
+                rectEnemy.x = rectEnemy.x - speedEnemy # 左にいどう
+                if rectEnemy.right < 0: # がめんひだりはしに とどいたばあい
+                    flagEnemyMoveRight = True # 右いどうに きりかえる
 
-            screen.blit(imageEnemy, rectEnemy) # 敵をゲーム画面に書きます
-
-        #
-        #-- 敵のミサイルのあたり判定
-        #
-        if flagMissileFire == True: # ミサイルが発射している場合
-            if rectMissile.colliderect(rectEnemy) : # ミサイルと敵の座標が重なっている場合
-                screen.blit(textBang, [rectMissile.x, rectMissile.y]) # メッセージ表示
-                pygame.display.update()  # 作ったゲーム画面で、Windowsの画面を更新します
-                time.sleep(2) # 3秒待ちます
-                exit() # 終了関数を呼び出す
-        #
-        #-- ゲーム画面の更新
-        #
-        pygame.display.update()  # 作ったゲーム画面で、Windowsの画面を更新します
-        pygame.time.Clock().tick(30)        # 更新速度は5fps
+            screen.blit(imageEnemy, rectEnemy) # てきを ゲームがめんに かきます
 
         #
-        #-- ゲーム画面が閉じられた場合などに対して、システムの後処理を行います
-        # ※この部分は直接ゲームに関係ありません
-        for event in pygame.event.get(): # 今キューに溜まっている全てのイベントを順に取得
-            if event.type == QUIT:    # イベントが強制終了の場合
-                exit() # 終了関数を呼び出す
+        #-- てきと ミサイルの あたりはんてい
+        #
+        if flagMissileFire == True: # ミサイルが はっしゃしているばあい
+            if rectMissile.colliderect(rectEnemy) : # ミサイルと てきのざひょうが かさなっているばあい
+                screen.blit(textBang, [rectMissile.x, rectMissile.y]) # メッセージひょうじ
+                pygame.display.update()  # つくったゲームがめんで、Windowsのがめんを こうしんします
+                time.sleep(2) # 3びょう まちます
+                exit() # しゅうりょうかんすうを よびだす
+        #
+        #-- ゲームがめんのこうしん
+        #
+        pygame.display.update()  # つくったゲームがめんで、Windowsのがめんを こうしんします
+        pygame.time.Clock().tick(30) # こうしんそくどは 5fps[frame per second]
 
-# 終了関数の定義
+        #
+        #-- ゲームがめんが とじられたばあい、システムの あとしょりを おこないます
+        # ※このぶぶんは ちょくせつゲームに かんけいありません
+        for event in pygame.event.get(): # いま キューにたまっている すべてのイベントを じゅんに しゅとく
+            if event.type == QUIT:    # イベントが きょうせいしゅうりょうの ばあい
+                exit() # しゅうりょうかんすうを よびだす
+
+# しゅうりょうかんすうの ていぎ
 def exit():
-    pygame.quit() # pyGame終了処理
-    sys.exit()    # Python終了
+    pygame.quit() # pyGameしゅうりょう
+    sys.exit()    # Pythonしゅうりょう
 
-# このファイルがpython起動時に指定されたファイルであるかを判定します
-if __name__ == '__main__': # importで呼ばれた場合、__name__ には import xxx の xxx　という文字が入ります
-    main() # メイン関数を呼び出します
+# このファイルが pythonきどうじに していされたファイルであるかを はんていします
+if __name__ == '__main__': # importでよばれたばあい、__name__ には import xxx の xxx　というもじがはいります
+    main() # メインかんすうを よびだします
